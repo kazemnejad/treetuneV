@@ -1,0 +1,14 @@
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+      - agentica-org/DeepScaleR-Preview-Dataset
+    kwargs:
+      split: train
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  data_source: "DeepScaleR"

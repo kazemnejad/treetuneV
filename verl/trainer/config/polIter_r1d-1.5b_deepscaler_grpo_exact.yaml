@@ -1,0 +1,13 @@
+defaults:
+  - polIter_r1d-1.5b_deepscaler_grpo
+  - _self_
+
+actor_rollout_ref:
+  actor:
+    use_kl_loss: true
+    kl_loss_coef: 0.001
+    kl_loss_type: low_var_kl
+    clip_ratio_high: 0.2
+
+    optim:
+      weight_decay: 0.00

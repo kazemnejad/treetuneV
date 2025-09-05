@@ -1,0 +1,35 @@
+defaults:
+  - polIter_r1d-1.5b_deepscaler
+  - _self_
+
+data:
+  train_batch_size: 1
+
+actor_rollout_ref:
+  actor:
+    ppo_mini_batch_size: 1
+    ppo_micro_batch_size_per_gpu: 2
+
+reward_model:
+  reward_manager: vineppo
+  num_workers: 2
+
+trainer:
+  name: vineppo
+
+  vineppo:
+    _target_: verl.trainer.config.algorithm.VineppoConfig
+
+    vineppo_k: 8
+
+    prefill_cost: 0.1
+    generation_cost: 0.2
+    use_max_response_len_for_vine_cost: False
+
+  solution_splitter:
+    _target_: verl.trainer.config.algorithm.VinePPOSolutionSplitterConfig
+    name: double_new_line_tokens
+    kwargs:
+      enclosing_think_tag_str: "</think>"
+      merge_every_k_states: 5
+      max_num_states: 25

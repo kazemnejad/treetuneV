@@ -1,0 +1,22 @@
+########################
+# AIME 2024
+########################
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+        - HuggingFaceH4/aime_2024
+    kwargs:
+        split: train  # the only available split
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  max_samples: 4
+
+  data_source: "aime_2024"
+
+  val_sampling_params:
+    n: 4

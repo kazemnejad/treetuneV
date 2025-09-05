@@ -1,0 +1,20 @@
+########################
+# Konkur (filtered)
+########################
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+      - realtreetune/konkur-filtered
+    kwargs:
+      split: test
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  data_source: "konkur-filtered"
+
+  val_sampling_params:
+    n: 32

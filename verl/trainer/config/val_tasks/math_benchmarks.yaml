@@ -1,0 +1,64 @@
+########################
+# AIME 2024
+########################
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+        - HuggingFaceH4/aime_2024
+    kwargs:
+        split: train  # the only available split
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  data_source: "aime_2024"
+
+  val_sampling_params:
+    n: 32
+
+########################
+# AIME 2025
+########################
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+        - MathArena/aime_2025
+    kwargs:
+        split: train  # the only available split
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  data_source: "aime_2025"
+
+  val_sampling_params:
+    n: 32
+
+########################
+# DeepScalerR very small
+########################
+- _target_: verl.tasks.math_like_task.MathLikeTaskConfig
+  name: math_like_task
+  loading_params:
+    args:
+        - agentica-org/DeepScaleR-Preview-Dataset
+    kwargs:
+        split: train
+  problem_key: problem
+  answer_key: answer
+
+  prompt_template: '{}\n\nPlease reason step by step, and put your final answer within \\boxed{{}}.'
+  system_prompt: null
+
+  max_samples: 30
+
+  data_source: "DeepScaleR"
+
+  val_sampling_params:
+    n: 32

@@ -1,0 +1,9 @@
+defaults:
+  - polIter_r1d-1.5b_deepscaler
+  - _self_
+
+algorithm:
+  adv_estimator: grpo
+
+trainer:
+  name: treetune_ppo

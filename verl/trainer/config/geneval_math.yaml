@@ -1,0 +1,73 @@
+defaults:
+  - policy_iteration
+  - val_tasks: math_benchmarks
+  - _self_
+
+data:
+  # We will produce the data in tasks
+  train_files: null
+  val_files: null
+
+  max_prompt_length: 2048
+  max_response_length: 8192
+
+  filter_overlong_prompts: true
+  truncation: error
+
+  val_batch_size: 16
+
+custom_reward_function:
+  path: verl/utils/reward_score/treetune_math_verify.py
+
+algorithm: null
+
+actor_rollout_ref:
+  model:
+    path: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+    use_remove_padding: true # enables sequence packing
+    enable_gradient_checkpointing: true
+
+  actor:
+    strategy: fsdp  # This is for backward-compatibility
+    ulysses_sequence_parallel_size: 1 # sp size
+    entropy_from_logits_with_chunking: False  # calculate entropy with chunking to reduce memory peak
+    entropy_checkpointing: False  # recompute entropy
+    fsdp_config:
+      fsdp_size: -1
+      forward_prefetch: false  # FSDP1 forward_prefetch configuration
+      param_offload: true
+      optimizer_offload: true
+
+  rollout:
+    max_model_len: ${eval:'${data.max_response_length} + ${data.max_prompt_length}'}
+
+    val_kwargs:
+      top_k: -1
+      top_p: 1.0
+      temperature: 0.6
+      n: 32
+      do_sample: true
+
+    gpu_memory_utilization: 0.75
+    tensor_model_parallel_size: 1
+
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: ${oc.select:actor_rollout_ref.actor.ppo_max_token_len_per_gpu}
+
+  ref: null
+
+critic: null
+
+reward_model:
+  model: null
+  use_dynamic_bsz: null
+  forward_max_token_len_per_gpu: null
+  launch_reward_fn_async: ${eval:'not ${oc.select:algorithm.filter_groups.enable,False}'}
+
+trainer:
+  save_freq: 1
+
+push_to_hub_enabled: false
+push_to_hub_ignore_errors: true
+hf_repo_id: ${oc.env:TREETUNEV__EXP_NAME,null}
+ignore_dataset_rollout_n: false

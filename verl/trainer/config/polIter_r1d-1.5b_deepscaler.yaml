@@ -1,0 +1,134 @@
+defaults:
+  - policy_iteration
+  - train_tasks: deepscaler
+  - val_tasks: math_benchmarks
+  - _self_
+
+data:
+  # We will produce the data in tasks
+  train_files: null
+  val_files: null
+
+  max_prompt_length: 2048
+  max_response_length: 8192
+
+  filter_overlong_prompts: true
+  truncation: error
+
+  train_batch_size: 128
+  val_batch_size: 16
+
+custom_reward_function:
+  path: verl/utils/reward_score/treetune_math_verify.py
+
+algorithm:
+  use_kl_in_reward: false
+
+  filter_groups:
+    _target_: verl.trainer.config.FilterGroupsConfig
+    enable: false
+    max_num_gen_batches: 20
+    actual_train_batch_size: 128
+
+  kl_ctrl:
+    kl_coef: ${oc.select:actor_rollout_ref.actor.kl_loss_coef}
+
+actor_rollout_ref:
+  model:
+    path: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+    use_remove_padding: true # enables sequence packing
+    enable_gradient_checkpointing: true
+
+  actor:
+    entropy_coeff: 0
+
+    use_kl_loss: false
+    kl_loss_coef: 0.001
+    kl_loss_type: low_var_kl
+
+    optim:
+      lr: 1e-6
+      weight_decay: 0.00
+
+    loss_agg_mode: seq-mean-token-mean
+
+    clip_ratio_high: 0.28
+
+    use_dynamic_bsz: true
+    strategy: fsdp2
+    fsdp_config:
+      param_offload: true
+      optimizer_offload: false
+      fsdp_size: ${oc.select:trainer.n_gpus_per_node}
+      reshard_after_forward: false
+
+    # num grad updates per step: ppo_epochs * train_batch_size / ppo_mini_batch_size
+    ppo_mini_batch_size: 64
+    ppo_max_token_len_per_gpu: 32768
+    ppo_epochs: 1
+
+    checkpoint:
+      _target_: verl.trainer.config.config.KeepingCheckpointConfig
+      keep_every_n_saves: 2
+      keep_only_hf_in_previous_saves: true
+      push_to_hub_freq: 50
+      hf_repo_id: ${oc.env:WANDB_RUN_GROUP,null}
+      push_to_hub_enabled: false
+      push_to_hub_ignore_errors: true
+
+  rollout:
+    max_model_len: ${eval:'${data.max_response_length} + ${data.max_prompt_length}'}
+
+    # Number of rollout responses per prompt
+    n: 8
+
+    # Train sampling parameters
+    temperature: 0.6
+    top_k: -1
+    top_p: 1
+
+    val_kwargs:
+      top_k: -1
+      top_p: 1.0
+      temperature: 0.6
+      n: 32
+      do_sample: true
+
+    gpu_memory_utilization: 0.75
+    tensor_model_parallel_size: 1
+
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: ${oc.select:actor_rollout_ref.actor.ppo_max_token_len_per_gpu}
+
+  ref:
+    log_prob_use_dynamic_bsz: true
+    log_prob_max_token_len_per_gpu: ${oc.select:actor_rollout_ref.actor.ppo_max_token_len_per_gpu}
+
+    fsdp_config:
+      param_offload: true
+
+critic:
+  enable: false
+
+reward_model:
+  model: null
+  use_dynamic_bsz: null
+  forward_max_token_len_per_gpu: null
+  launch_reward_fn_async: ${eval:'not ${oc.select:algorithm.filter_groups.enable,False}'}
+
+trainer:
+  val_before_train: true
+
+  # There is no critic
+  critic_warmup: 0
+
+  total_epochs: 150 # doesn't matter
+  total_training_steps: 1000
+
+  save_freq: 25
+  test_freq: 50
+
+  rollout_dump_freq: 25
+  full_episodes_dump_freq: 50
+
+  log_val_generations: 1000

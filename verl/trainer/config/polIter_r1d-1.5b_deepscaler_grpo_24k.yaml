@@ -1,0 +1,27 @@
+defaults:
+  - polIter_r1d-1.5b_deepscaler_grpo
+  - _self_
+
+data:
+  max_response_length: 24576
+
+actor_rollout_ref:
+  actor:
+    optim:
+      weight_decay: 0.0
+
+    use_kl_loss: false
+    clip_ratio_high: 0.24
+
+    tis_imp_ratio_cap: 2
+    policy_loss:
+      loss_mode: vanilla_with_trace_lengths
+
+    checkpoint:
+      keep_every_n_saves: 2
+      keep_only_hf_in_previous_saves: false
+      push_to_hub_freq: 50
+
+  rollout:
+    calculate_log_probs: true
+    gpu_memory_utilization: 0.8

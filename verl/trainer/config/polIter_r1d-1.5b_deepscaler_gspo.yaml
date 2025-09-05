@@ -1,0 +1,11 @@
+defaults:
+  - polIter_r1d-1.5b_deepscaler_grpo
+  - _self_
+
+actor_rollout_ref:
+  actor:
+    clip_ratio_low: 0.0003
+    clip_ratio_high: 0.0004
+
+  policy_loss:
+    loss_mode: gspo
