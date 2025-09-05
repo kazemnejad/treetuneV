@@ -61,13 +61,3 @@ uv pip install --no-cache-dir --upgrade "nvidia-ml-py>=12.560.30" "fastapi[stand
 uv pip install --no-cache-dir nvidia-cudnn-cu12==9.8.0.87
 ```
 
-## 5. Create the python env for the launcher script
-```bash
-mkdir ~/scratch/venvs
-cat > ~/scratch/venvs/treetune_verl_v1.sh <<EOF
-#!/bin/bash
-
-module load cuda/12.6 cudnn/9.10.0.56
-source \$HOME/repos/treetune_verl/.venv/bin/activate
-EOF
-
