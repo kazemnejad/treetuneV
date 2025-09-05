@@ -66,32 +66,6 @@ python -m verl.trainer.main_policy_iteration \
 
 Check out the examples in [`scripts/examples/`](scripts/examples/) for how to use VERL/TreetuneV.
 
-## How To Use Launcher
-
-Launcher syntax:
-```bash
-python scripts/launcher.py -i <image/venv-name> -s "<slurm-args>" <EXP_ID>
-```
-Optional arguments:
-- `--interactive`: Run the experiment interactively.
-- `--dry-run`: Do not submit the job to SLURM; Just create the SLURM script.
-- `-n, --num_submissions`: Number submission. Submit the same experiment multiple times to run sequentially.
-- `--dist_nodes`: Number of nodes for distributed training (defaults to 1).
-### Compute Canada Examples
-- **Nibi**: 
-
-
-  `python scripts/launcher.py -i treetune_verl_v1.sh -s "-c 100 --mem 2000G --gpus=8 --time 25:00:00" <EXP_ID>`
-- **Fir**: 
-
-  `python scripts/launcher.py -i treetune_verl_v1.sh -s "-c 48 --mem 1000G --gpus=4 --time 25:00:00" <EXP_ID>`
-- **Rorqual**: 
-
-  `python scripts/launcher.py -i treetune_verl_v1.sh -s "-c 64 --mem 480G --gpus=4 --time 25:00:00" <EXP_ID>`
-- **Tamia**: 
-
-  `python scripts/launcher.py -i treetune_verl_v1.sh -s "-c 48 --mem 480G --gpus=4 --time 25:00:00" <EXP_ID>`
-
 ## TreetuneV Specific Examples
 
 1. **GRPO using DeepScaleR recipe**: [`scripts/treetune/deepscaler_r1d-1.5b_grpo_stable.sh`](scripts/treetune/deepscaler_r1d-1.5b_grpo_stable.sh)
